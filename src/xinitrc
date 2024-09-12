@@ -1,0 +1,53 @@
+#!/bin/sh
+
+xset s noblank
+xset s off
+xset -dpms
+
+# Default to the default page if not URL found
+kiosk_url=$(cat ~/kiosk-url.txt)
+
+if [ -n "$kiosk_url" ]; then
+	# Use the, possibly dynamic, URL from file
+	# TODO Validate the URL aswell
+	url="$kiosk_url"
+else
+	# Use the default page and fill out the makeshift jinja tags (hehe..)
+	model="$(tr -d '\0' < /sys/firmware/devicetree/base/model)"
+	serial="$(tr -d '\0' < /sys/firmware/devicetree/base/serial-number)"
+	hostname="$(hostname)"
+	# TODO Prevent hardcoding ethernet device name here..
+	mac="$(tr -d '\0' < /sys/class/net/eth0/address)"
+	ipaddrs="$(hostname --all-ip-addresses)"
+
+	# Yes, this sed command hurts a bit to write, but KISS for now
+	default_page="/home/rocky/default-page.html"
+	cat "$default_page.template" | \
+		sed -e "s/{{hostname}}/$hostname/g" \
+			-e "s/{{model}}/$model/g" \
+			-e "s/{{serial}}/$serial/g" \
+			-e "s/{{mac}}/$mac/g" \
+			-e "s/{{ipaddrs}}/$ipaddrs/g" \
+		>$default_page
+
+	[ -f "$default_page" ] || { \
+		cp $default_page.template $default_page; \
+		echo "Did not find filled in default page, using template.."; \
+	}
+
+	url="file://$(readlink -f $default_page)"
+fi
+
+exec chromium-browser \
+	--window-position=0,0 \
+	--window-size=1920,1080 \
+	--start-fullscreen \
+	--start-maximized \
+	--fast \
+	--incognito \
+	--no-default-browser-check \
+	--noerrdialogs \
+	--ignore-certificate-errors \
+	--disable-translate \
+	--kiosk \
+	$url

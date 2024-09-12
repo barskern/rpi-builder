@@ -1,0 +1,8 @@
+src/*-page.html.template
+!src/default-page.html.template
+
+.env
+.mnt.*
+assets/
+dest/
+mnt/

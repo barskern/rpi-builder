@@ -1,0 +1,13 @@
+[Unit]
+Description=Set the Kiosk URL from the cmdline parameters
+After=graphical.target
+
+[Service]
+User=rocky
+WorkingDirectory=/home/rocky
+
+Type=oneshot
+ExecStart=/home/rocky/set-kiosk-url-from-cmdline.sh
+
+[Install]
+WantedBy=graphical.target
