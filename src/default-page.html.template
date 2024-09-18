@@ -69,7 +69,7 @@
 		<div class="infotext">
 			<hr />
 			<small>
-				rpi-builder v[[RPI_BUILDER_VERSION]]-git-[[RPI_BUILDER_SHA]] built at [[RPI_BUILDER_DATE]]
+				rpi-builder [[RPI_BUILDER_VERSION]]-git-[[RPI_BUILDER_SHA]] built at [[RPI_BUILDER_DATE]]
 			</small>
 		</div>
 	</body>
