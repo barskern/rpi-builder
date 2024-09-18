@@ -9,14 +9,6 @@ systemctl disable sshd
 systemctl enable x11-autologin.service
 systemctl enable set-kiosk-url-from-cmdline.service
 
-#mkdir -p /etc/systemd/system/graphical.target.wants/
-#ln -fs \
-#	/etc/systemd/system/x11-autologin.service \
-#	/etc/systemd/system/graphical.target.wants/
-#ln -fs \
-#	/etc/systemd/system/set-kiosk-url-from-cmdline.service \
-#	/etc/systemd/system/graphical.target.wants/
-
 # Ensure everything in rockys home folder is owned by rocky
 chown -R rocky:rocky /home/rocky
 
