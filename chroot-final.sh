@@ -2,21 +2,31 @@
 
 echo "Running on: `uname -a`"
 
+# Ensure ssh is disabled
+systemctl disable sshd
+
 # Enable the services on login/startup
-mkdir -p /etc/systemd/system/graphical.target.wants/
-ln -fs \
-	/etc/systemd/system/x11-autologin.service \
-	/etc/systemd/system/graphical.target.wants/
-ln -fs \
-	/etc/systemd/system/set-kiosk-url-from-cmdline.service \
-	/etc/systemd/system/graphical.target.wants/
+systemctl enable x11-autologin.service
+systemctl enable set-kiosk-url-from-cmdline.service
+
+#mkdir -p /etc/systemd/system/graphical.target.wants/
+#ln -fs \
+#	/etc/systemd/system/x11-autologin.service \
+#	/etc/systemd/system/graphical.target.wants/
+#ln -fs \
+#	/etc/systemd/system/set-kiosk-url-from-cmdline.service \
+#	/etc/systemd/system/graphical.target.wants/
 
 # Ensure everything in rockys home folder is owned by rocky
 chown -R rocky:rocky /home/rocky
+
+# Set the user password
+echo "$RPI_USER_PASSWORD" | passwd --stdin rocky
 
 # Remove "unwanted" README
 rm -f /home/rocky/README
 
 # Remove log files
-# TODO Maybe other files we can remove from the rootfs to shrink the size of it?
 find /var/log -type f -name "*.log" -delete
+
+# TODO Maybe there are other files we can remove from rootfs?

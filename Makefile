@@ -40,6 +40,7 @@ $(DEST)/rpi-rocky9-rootfs.sq: .$(MNT).chroot-final
 	sudo \
 		--preserve-env=RPI_OSROOTFS \
 		--preserve-env=RPI_HTML_TEMPLATE_NAME \
+		--preserve-env=RPI_USER_PASSWORD \
 		./configure-image.sh $(MNT) chroot-base.sh
 	touch $@
 
@@ -47,6 +48,7 @@ $(DEST)/rpi-rocky9-rootfs.sq: .$(MNT).chroot-final
 	sudo \
 		--preserve-env=RPI_OSROOTFS \
 		--preserve-env=RPI_HTML_TEMPLATE_NAME \
+		--preserve-env=RPI_USER_PASSWORD \
 		./configure-image.sh $(MNT) chroot-final.sh
 	touch $@
 
