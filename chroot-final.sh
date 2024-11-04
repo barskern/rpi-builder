@@ -3,7 +3,7 @@
 echo "Running on: `uname -a`"
 
 # Ensure ssh is disabled
-systemctl disable sshd
+#systemctl disable sshd
 
 # Ensure wifi is disabled
 systemctl disable wpa_supplicant
@@ -23,5 +23,8 @@ rm -f /home/rocky/README
 
 # Remove log files
 find /var/log -type f -name "*.log" -delete
+
+# TODO Temporary, fix DNS over DHCP..
+echo "nameserver 10.14.211.129" > /etc/resolv.conf
 
 # TODO Maybe there are other files we can remove from rootfs?

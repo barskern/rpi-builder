@@ -7,8 +7,8 @@ BASE_IMG_URL = https://dl.rockylinux.org/pub/sig/9/altarch/aarch64/images/$(BASE
 
 SRCS = $(wildcard src/*)
 
-RPI_BUILDER_VERSION ?= unset
-RPI_BUILDER_SHA ?= 999999
+RPI_BUILDER_VERSION ?= $(shell git describe --abbrev=0 2>/dev/null || true)
+RPI_BUILDER_SHA ?= $(shell git rev-parse --short HEAD)
 
 default: $(DEST)/rpi-rocky9-rootfs.sq $(DEST)/rpi-rocky9-boot.tar.gz
 .PHONY: default
