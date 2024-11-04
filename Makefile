@@ -1,11 +1,14 @@
-MNT=mnt
-DEST=dest
-ASSETS=assets
+MNT = mnt
+DEST = dest
+ASSETS = assets
 
-BASE_IMG=RockyLinuxRpi_9-latest.img
-BASE_IMG_URL=https://dl.rockylinux.org/pub/sig/9/altarch/aarch64/images/$(BASE_IMG).xz
+BASE_IMG = RockyRpi_9.2.img
+BASE_IMG_URL = https://dl.rockylinux.org/pub/sig/9/altarch/aarch64/images/$(BASE_IMG).xz
 
-SRCS=$(wildcard src/*)
+SRCS = $(wildcard src/*)
+
+RPI_BUILDER_VERSION ?= unset
+RPI_BUILDER_SHA ?= 999999
 
 default: $(DEST)/rpi-rocky9-rootfs.sq $(DEST)/rpi-rocky9-boot.tar.gz
 .PHONY: default
@@ -23,13 +26,12 @@ $(DEST)/rpi-rocky9-rootfs.sq: .$(MNT).chroot-final
 	sudo mksquashfs $(MNT) $@ \
 		-noappend \
 		-progress \
-		-one-file-system \
 		-e proc sys dev etc/resolv.conf usr/bin/qemu-aarch64-static
 
 # Divided into multiple buildsteps to provide some caching when developing
 # to prevent having to rebuild from start on every change.
 
-.$(MNT).setup: $(ASSETS)/$(BASE_IMG)
+.$(MNT).setup: $(DEST)/$(BASE_IMG)
 	sudo \
 		--preserve-env=RPI_SIZE \
 		--preserve-env=RPI_IMAGE_NAME \
@@ -37,22 +39,29 @@ $(DEST)/rpi-rocky9-rootfs.sq: .$(MNT).chroot-final
 	touch $@
 
 .$(MNT).chroot-base: .$(MNT).setup chroot-base.sh
+	RPI_BUILDER_VERSION=$(RPI_BUILDER_VERSION) \
+	RPI_BUILDER_SHA=$(RPI_BUILDER_SHA) \
 	sudo \
-		--preserve-env=RPI_OSROOTFS \
+		--preserve-env=RPI_BUILDER_VERSION \
+		--preserve-env=RPI_BUILDER_SHA \
 		--preserve-env=RPI_HTML_TEMPLATE_NAME \
 		--preserve-env=RPI_USER_PASSWORD \
 		./configure-image.sh $(MNT) chroot-base.sh
 	touch $@
 
 .$(MNT).chroot-final: .$(MNT).chroot-base chroot-final.sh $(SRCS)
+	RPI_BUILDER_VERSION=$(RPI_BUILDER_VERSION) \
+	RPI_BUILDER_SHA=$(RPI_BUILDER_SHA) \
 	sudo \
-		--preserve-env=RPI_OSROOTFS \
+		--preserve-env=RPI_BUILDER_VERSION \
+		--preserve-env=RPI_BUILDER_SHA \
 		--preserve-env=RPI_HTML_TEMPLATE_NAME \
 		--preserve-env=RPI_USER_PASSWORD \
 		./configure-image.sh $(MNT) chroot-final.sh
 	touch $@
 
 $(DEST)/$(BASE_IMG): $(ASSETS)/$(BASE_IMG).xz
+	@mkdir -p $(@D)
 	xz --decompress --stdout $< > $@
 
 $(ASSETS)/$(BASE_IMG).xz:
@@ -60,8 +69,15 @@ $(ASSETS)/$(BASE_IMG).xz:
 	curl \
 		--retry 5 \
 		--retry-max-time 120 \
+		--skip-existing \
 		--output $@ \
 		$(BASE_IMG_URL)
+	curl \
+		--retry 5 \
+		--retry-max-time 120 \
+		--output $@ \
+		$(BASE_IMG_URL).sha256sum
+	@cd $(ASSETS); sha256sum --check $(BASE_IMG).xz.sha256sum
 
 clean:
 	-sudo umount -R mnt

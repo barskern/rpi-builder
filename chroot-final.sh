@@ -5,6 +5,9 @@ echo "Running on: `uname -a`"
 # Ensure ssh is disabled
 systemctl disable sshd
 
+# Ensure wifi is disabled
+systemctl disable wpa_supplicant
+
 # Enable the services on login/startup
 systemctl enable x11-autologin.service
 systemctl enable set-kiosk-url-from-cmdline.service
