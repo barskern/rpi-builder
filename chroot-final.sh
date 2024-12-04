@@ -26,8 +26,4 @@ rm -f /home/rocky/README
 # Remove log files
 find /var/log -type f -name "*.log" -delete
 
-# TODO Temporary, figure out DNS and NTP over DHCP..
-echo "nameserver 10.14.211.129" > /etc/resolv.conf
-sed -Ei "s/^pool .*$/pool 10.14.68.126 iburst/" /etc/chrony.conf
-
 # TODO Maybe there are other files we can remove from rootfs to make it skinner?
