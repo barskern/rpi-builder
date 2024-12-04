@@ -1,25 +1,33 @@
 #!/bin/bash
 
+set -exuo pipefail
+trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
+
 echo "Running on: `uname -a`"
 
-echo -e "\ninstall_weak_deps=False" >> /etc/dnf/dnf.conf
+cat >>/etc/dnf/dnf.conf <<EOF
+install_weak_deps=False
+EOF
 
 echo "Updating and configuring image for use as office monitor"
 dnf update -y
-dnf config-manager --set-enabled crb -y
 
-# Need epel for chromium
-dnf install -y \
-    https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm \
-    https://dl.fedoraproject.org/pub/epel/epel-next-release-latest-9.noarch.rpm
+# Need epel for chromium, and crb for epel
+dnf config-manager -y --set-enabled crb
+dnf install -y epel-release
 
-dnf install @base-x chromium -y
+# Run in two commands to prevent "too full filesystem"
+dnf install -y @base-x
+dnf install -y chromium
 
 # Remove "unneeded" packages
 dnf autoremove -y
 
 # Remove all package caches to prevent "unnecessarily" big squashfs
-dnf clean all
+dnf clean all --verbose
+dnf clean dbcache --verbose
+dnf clean metadata --verbose
+dnf clean packages --verbose
 
 # Empty fstab, rootfs already mounted in RAM when booted
 echo "" > /etc/fstab

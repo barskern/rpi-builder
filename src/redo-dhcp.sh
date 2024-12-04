@@ -1,4 +1,4 @@
 #!/bin/sh
 
-nmcli con down eth0
-nmcli con up eth0
+sudo nmcli con down eth0
+sudo nmcli con up eth0

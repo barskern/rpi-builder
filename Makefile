@@ -27,7 +27,7 @@ $(DEST)/rpi-rocky9-rootfs-%.sq: .$(MNT).chroot-final
 	sudo mksquashfs $(MNT) $@ \
 		-noappend \
 		-progress \
-		-e proc sys dev usr/bin/qemu-aarch64-static
+		-e proc sys dev etc/resolv.conf usr/bin/qemu-aarch64-static
 
 # Divided into multiple buildsteps to provide some caching when developing
 # to prevent having to rebuild from start on every change.

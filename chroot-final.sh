@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -exuo pipefail
+trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
+
 echo "Running on: `uname -a`"
 
 # Very useful for development/debugging

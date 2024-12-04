@@ -23,5 +23,5 @@ if [ -n "$remote_script_url" ]; then
 	fi
 else
 	echo "Did not find kernel parameter kiosk.remote-cfg, will not dynamically update"
-	systemctl disable apply-remote-configuration.timer
+	sudo systemctl disable apply-remote-configuration.timer
 fi

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -uo pipefail
+set -euxo pipefail
 trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
 IFS=$'\n\t'
 
@@ -40,10 +40,13 @@ dest_rootdev=$(ls "${dest_lodev}"*2)
 mkfs.vfat -F32 ${dest_bootdev}
 mkfs.ext4 -F ${dest_rootdev}
 
-set -x
 dd if=$src_rootdev of=$dest_rootdev status=progress
 dd if=$src_bootdev of=$dest_bootdev status=progress
-set +x
+
+# After dd, the filesystem is limited to the size of the original disk, however
+# the partition is bigger (namely RPI_SIZE - 350M). Resize the filesystem to fit
+# the partition.
+resize2fs $dest_rootdev
 
 # Mount the image
 [ ! -d "${mount}" ] && mkdir -m 0755 "${mount}"
@@ -55,6 +58,5 @@ mount "${dest_bootdev}" "${mount}/boot"
 mount -t proc none "${mount}/proc"
 mount -t sysfs none "${mount}/sys"
 mount -o bind /dev "${mount}/dev"
-cp "${mount}/etc/resolv.conf" "${mount}/etc/resolv.conf.orig"
 cp /etc/resolv.conf "${mount}/etc/resolv.conf"
 cp /usr/bin/qemu-aarch64-static "${mount}/usr/bin/"
