@@ -6,6 +6,7 @@ xset -dpms
 
 # Default to the default page if not URL found
 kiosk_url=$(cat ~/kiosk-url.txt)
+kiosk_location=$(cat ~/kiosk-location.txt)
 
 if [ -n "$kiosk_url" ]; then
 	# Use the, possibly dynamic, URL from file
@@ -28,6 +29,7 @@ else
 			-e "s/{{serial}}/$serial/g" \
 			-e "s/{{mac}}/$mac/g" \
 			-e "s/{{ipaddrs}}/$ipaddrs/g" \
+			-e "s/{{location}}/$kiosk_location/g" \
 		>$default_page
 
 	[ -f "$default_page" ] || { \
@@ -38,9 +40,29 @@ else
 	url="file://$(readlink -f $default_page)"
 fi
 
+x_offset=0
+y_offset=0
+x_padding=0
+y_padding=0
+x_scale=1
+y_scale=1
+
+dims="$(xdpyinfo | grep -oP 'dimensions:\s+\K\S+')"
+[[ -z "$dims" ]] && { echo "Got no dimensions, defaulting HD"; dims="1080x1920"; }
+
+raw_width="$(echo $dims | cut -d 'x' -f 1)"
+raw_height="$(echo $dims | cut -d 'x' -f 2)"
+
+x="$(($x_offset + $x_padding))"
+y="$(($y_offset + $y_padding))"
+width="$(($x_scale * $raw_width - 2 * $x_padding))"
+height="$(($y_scale * $raw_height - 2 * $y_padding))"
+
+echo "Using position ($x, $y) with size ($width, $height) for chromium"
+
 exec chromium-browser \
-	--window-position=0,0 \
-	--window-size=1920,1080 \
+	--window-position="$x,$y" \
+	--window-size="$width,$height" \
 	--start-fullscreen \
 	--start-maximized \
 	--fast \
@@ -49,5 +71,6 @@ exec chromium-browser \
 	--noerrdialogs \
 	--ignore-certificate-errors \
 	--disable-translate \
+	--disable-infobars \
 	--kiosk \
 	$url

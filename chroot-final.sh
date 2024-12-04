@@ -2,7 +2,7 @@
 
 echo "Running on: `uname -a`"
 
-# Ensure ssh is disabled
+# Very useful for development/debugging
 #systemctl disable sshd
 
 # Ensure wifi is disabled
@@ -11,6 +11,8 @@ systemctl disable wpa_supplicant
 # Enable the services on login/startup
 systemctl enable x11-autologin.service
 systemctl enable set-kiosk-url-from-cmdline.service
+systemctl enable apply-remote-configuration.timer
+systemctl enable redo-dhcp.service
 
 # Ensure everything in rockys home folder is owned by rocky
 chown -R rocky:rocky /home/rocky
@@ -24,7 +26,8 @@ rm -f /home/rocky/README
 # Remove log files
 find /var/log -type f -name "*.log" -delete
 
-# TODO Temporary, fix DNS over DHCP..
+# TODO Temporary, figure out DNS and NTP over DHCP..
 echo "nameserver 10.14.211.129" > /etc/resolv.conf
+sed -Ei "s/^pool .*$/pool 10.14.68.126 iburst/" /etc/chrony.conf
 
-# TODO Maybe there are other files we can remove from rootfs?
+# TODO Maybe there are other files we can remove from rootfs to make it skinner?

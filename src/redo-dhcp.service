@@ -1,0 +1,13 @@
+[Unit]
+Description=Redo DHCP to get DNS/NTP etc
+After=default.target
+
+[Service]
+User=rocky
+WorkingDirectory=/home/rocky
+
+Type=oneshot
+ExecStart=/home/rocky/redo-dhcp.sh
+
+[Install]
+WantedBy=default.target

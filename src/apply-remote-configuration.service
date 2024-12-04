@@ -1,0 +1,13 @@
+[Unit]
+Description=Apply remote configuration from script
+After=default.target
+
+[Service]
+User=rocky
+WorkingDirectory=/home/rocky
+
+Type=oneshot
+ExecStart=/home/rocky/apply-remote-configuration.sh
+
+[Install]
+WantedBy=default.target

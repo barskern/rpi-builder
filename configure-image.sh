@@ -46,6 +46,10 @@ chmod 644 $mount/boot/cmdline.txt
 install_file 10-harden.conf /etc/X11/xorg.conf.d/
 install_file set-kiosk-url-from-cmdline.service /etc/systemd/system/
 install_file x11-autologin.service /etc/systemd/system/
+install_file apply-remote-configuration.service /etc/systemd/system/
+install_file apply-remote-configuration.timer /etc/systemd/system/
+install_file redo-dhcp.service /etc/systemd/system/
+install_file rocky.sudoers /etc/sudoers.d/rocky 640
 
 template_file="$template-page.html.template"
 echo "Using '$template_file' as default template"
@@ -57,7 +61,9 @@ cat src/$template_file | \
 	>$mount/home/rocky/default-page.html.template
 chmod 644 $mount/home/rocky/default-page.html.template
 
+install_file apply-remote-configuration.sh /home/rocky/ 755
 install_file set-kiosk-url-from-cmdline.sh /home/rocky/ 755
+install_file redo-dhcp.sh /home/rocky/ 755
 install_file xinitrc /home/rocky/.xinitrc 755
 
 # TODO Setup repos which should be used within the chroot

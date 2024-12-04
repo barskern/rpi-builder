@@ -2,13 +2,10 @@
 
 echo "Running on: `uname -a`"
 
-# Ensure there is a newline...
-echo "" >> /etc/dnf/dnf.conf
-echo "install_weak_deps=False" >> /etc/dnf/dnf.conf
+echo -e "\ninstall_weak_deps=False" >> /etc/dnf/dnf.conf
 
-echo "Updating and configuring image for use as office kiosk"
-# TODO Enable update when development iterations are done
-#dnf update -y
+echo "Updating and configuring image for use as office monitor"
+dnf update -y
 dnf config-manager --set-enabled crb -y
 
 # Need epel for chromium
@@ -48,10 +45,15 @@ cat >/etc/dracut.conf.d/custom.conf <<EOF
 add_dracutmodules+=" debug rootfs-over-http "
 EOF
 
-# TODO Disable splash screen when finished
 cp /boot/config-kernel.inc /boot/config.txt
 cat >>/boot/config.txt <<EOF
-disable_splash=0
+disable_splash=1
+disable_poe_fan=1
+boot_delay=0
+force_eeprom_read=0
+ignore_lcd=1
+camera_auto_detect=0
+dtoverlay=disable-wifi
 
 # Built at $(date +%Y-%m-%dT%H:%M:%S%Z) by $(whoami) at $(hostname)
 EOF
