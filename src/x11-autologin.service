@@ -19,9 +19,7 @@ ExecStartPre=/usr/bin/chvt 8
 ExecStart=/usr/bin/startx -- vt8 -keeptty -verbose 3 -nocursor
 
 Restart=always
-RestartSec="10s"
-RestartSteps=30
-RestartMaxDelaySec="10min"
+RestartSec=5
 
 [Install]
 WantedBy=graphical.target
